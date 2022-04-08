@@ -1,23 +1,24 @@
+TMPDIR=.tmp
 ZIPDIR=Spoons
 SRCDIR=Source
-SOURCES := $(wildcard $(SRCDIR)/*.spoon)
-SPOONS := $(patsubst $(SRCDIR)/%, $(ZIPDIR)/%.zip, $(SOURCES))
-ZIP=/usr/bin/zip
+SOURCES:=$(wildcard $(SRCDIR)/*.spoon)
+SPOONS:=$(patsubst $(SRCDIR)/%, $(ZIPDIR)/%.zip, $(SOURCES))
 FENNEL=./fennel-1.0.0
 
 all: $(SPOONS)
 
 clean:
+	rm -rf $(TMPDIR)
 	rm -f $(ZIPDIR)/*.zip
 
-%.lua: %.fnl
-	$(FENNEL) --compile $< > $@
+$(TMPDIR)/%: $(SRCDIR)/%
+	rm -rf $@
+	mkdir -p $@
+	cd $< ; fd --strip-cwd-prefix -efnl | rargs -p '(.*)\.fnl' sh -c "fennel --compile {0} > ../../$@/{1}.lua"
+	cd $@ ; hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | grep -v "^--" > docs.json
 
-$(SRCDIR)/%/docs.json: $(wildcard $(SRCDIR)/%/*.lua)
-	cd $(SRCDIR) ; hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | grep -v "^--" > docs.json
-
-$(ZIPDIR)/%.zip: $(SRCDIR)/%
+$(ZIPDIR)/%.zip: $(TMPDIR)/%
 	rm -f $@
-	cd $(SRCDIR) ; $(ZIP) -9 -r ../$@ $(patsubst $(SRCDIR)/%, %, $<)
+	cd $(TMPDIR) ; zip -9 -r ../$@ $(patsubst $(TMPDIR)/%, %, $<)
 
 .PHONY: clean
