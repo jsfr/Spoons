@@ -3,7 +3,6 @@ ZIPDIR=Spoons
 SRCDIR=Source
 SOURCES:=$(wildcard $(SRCDIR)/*.spoon)
 SPOONS:=$(patsubst $(SRCDIR)/%, $(ZIPDIR)/%.zip, $(SOURCES))
-FENNEL=./fennel-1.0.0
 
 all: $(SPOONS)
 

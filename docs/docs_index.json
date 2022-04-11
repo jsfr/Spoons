@@ -1,0 +1,7 @@
+[
+  {
+    "desc": "List of a users Github PRs in a menubar item",
+    "name": "PullRequests",
+    "type": "Module"
+  }
+]

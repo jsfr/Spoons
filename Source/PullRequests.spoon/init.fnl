@@ -1,3 +1,9 @@
+;;; === PullRequests ===
+;;;
+;;; List of a users Github PRs in a menubar item
+;;;
+;;; Download: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip)
+
 ; Prepare object
 (local obj {})
 (set obj.__index obj)
