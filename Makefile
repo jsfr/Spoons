@@ -13,7 +13,7 @@ clean:
 $(TMPDIR)/%: $(SRCDIR)/%
 	rm -rf $@
 	mkdir -p $@
-	cd $< ; fd --strip-cwd-prefix -efnl | rargs -p '(.*)\.fnl' sh -c "fennel --compile {0} > ../../$@/{1}.lua"
+	cd $< ; fennel --require-as-include --compile init.fnl > ../../$@/init.lua
 	cd $@ ; hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | grep -v "^--" > docs.json
 
 $(ZIPDIR)/%.zip: $(TMPDIR)/%
