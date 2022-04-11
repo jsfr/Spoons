@@ -17,5 +17,24 @@
     "stripped_doc": "\nDownload: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip)",
     "submodules": [],
     "type": "Module"
+  },
+  {
+    "Command": [],
+    "Constant": [],
+    "Constructor": [],
+    "Deprecated": [],
+    "Field": [],
+    "Function": [],
+    "Method": [],
+    "Variable": [],
+    "desc": "Shows a list of current spaces with windows on them as well as current active space.",
+    "desc_gfm": "<p>Shows a list of current spaces with windows on them as well as current active space.</p>\n",
+    "doc": "Shows a list of current spaces with windows on them as well as current active space.\n\nDownload: [https://github.com/jsfr/Spoons/raw/main/Spoons/YabaiSpaces.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/YabaiSpaces.spoon.zip)",
+    "doc_gfm": "<p>Shows a list of current spaces with windows on them as well as current active space.</p>\n<p>Download: <a href=\"https://github.com/jsfr/Spoons/raw/main/Spoons/YabaiSpaces.spoon.zip\">https://github.com/jsfr/Spoons/raw/main/Spoons/YabaiSpaces.spoon.zip</a></p>\n",
+    "items": [],
+    "name": "YabaiSpaces",
+    "stripped_doc": "\nDownload: [https://github.com/jsfr/Spoons/raw/main/Spoons/YabaiSpaces.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/YabaiSpaces.spoon.zip)",
+    "submodules": [],
+    "type": "Module"
   }
 ]

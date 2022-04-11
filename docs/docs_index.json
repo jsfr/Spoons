@@ -3,5 +3,10 @@
     "desc": "List of a users Github PRs in a menubar item",
     "name": "PullRequests",
     "type": "Module"
+  },
+  {
+    "desc": "Shows a list of current spaces with windows on them as well as current active space.",
+    "name": "YabaiSpaces",
+    "type": "Module"
   }
 ]

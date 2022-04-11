@@ -4,7 +4,7 @@ SRCDIR=Source
 SOURCES:=$(wildcard $(SRCDIR)/*.spoon)
 SPOONS:=$(patsubst $(SRCDIR)/%, $(ZIPDIR)/%.zip, $(SOURCES))
 
-all: $(SPOONS)
+all: $(SPOONS) docs/docs.json
 
 clean:
 	rm -rf $(TMPDIR)
@@ -19,5 +19,9 @@ $(TMPDIR)/%: $(SRCDIR)/%
 $(ZIPDIR)/%.zip: $(TMPDIR)/%
 	rm -f $@
 	cd $(TMPDIR) ; zip -9 -r ../$@ $(patsubst $(TMPDIR)/%, %, $<)
+
+docs/docs.json: $(SPOONS)
+	scripts/build_docs.sh
+
 
 .PHONY: clean

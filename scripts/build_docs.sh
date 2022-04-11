@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eux
 
@@ -12,7 +12,7 @@ else
 fi
 
 mkdir -p .docs_tmp
-/usr/bin/python3 "${HAMMERSPOON_PATH}/scripts/docs/bin/build_docs.py" -e "${HAMMERSPOON_PATH}/scripts/docs/templates/" -o .docs_tmp -i "jsfr's Spoons" -u "https://github.com/jsfr/Spoons/blob/main/" -j -t -n Source/
+python "${HAMMERSPOON_PATH}/scripts/docs/bin/build_docs.py" -e "${HAMMERSPOON_PATH}/scripts/docs/templates/" -o .docs_tmp -i "jsfr's Spoons" -u "https://github.com/jsfr/Spoons/blob/main/" -j -t -n Source/
 cp "${HAMMERSPOON_PATH}/scripts/docs/templates/docs.css" .docs_tmp/html/
 cp "${HAMMERSPOON_PATH}/scripts/docs/templates/jquery.js" .docs_tmp/html/
 mv .docs_tmp/html/* docs/
