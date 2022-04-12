@@ -44,7 +44,7 @@
           (var title (hs.styledtext.new " "))
           (each [_ space (pairs visible-spaces)]
             (set title (.. title (space-text space active-space))))
-          (menuItem:setTitle title))))))
+          (obj.menuItem:setTitle title))))))
 
 (fn terminate-task []
   "Terminates the task if it is currently running"
