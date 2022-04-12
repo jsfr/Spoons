@@ -9,12 +9,15 @@ all: $(SPOONS) docs/docs.json
 clean:
 	rm -rf $(TMPDIR)
 	rm -f $(ZIPDIR)/*.zip
+	rm -rf docs/*
 
 $(TMPDIR)/%: $(SRCDIR)/%
 	rm -rf $@
 	mkdir -p $@
-	cd $< ; fennel --require-as-include --compile init.fnl > ../../$@/init.lua
-	cd $@ ; hs -c "hs.doc.builder.genJSON(\"$(pwd)\")" | grep -v "^--" > docs.json
+	cp -r $</* $@/
+	cd $@ ; fennel --require-as-include --compile init.fnl > init.lua
+	cd $@ ; echo "[]" > docs.json # TODO: fix generation of docs
+	cd $@ ; rm *.fnl
 
 $(ZIPDIR)/%.zip: $(TMPDIR)/%
 	rm -f $@

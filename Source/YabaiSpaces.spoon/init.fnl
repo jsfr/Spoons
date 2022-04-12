@@ -67,9 +67,7 @@
 
 (fn obj.init [self]
   (set self.logger (hs.logger.new :YabaiSpaces))
-  (set self.menuItem (hs.menubar.new)))
-
-(fn obj.start [self]
+  (set self.menuItem (hs.menubar.new))
   (self.menuItem:setTitle "[Updating...]")
   (self:update))
 
