@@ -1,7 +1,5 @@
 (fn get-command [name]
-  (.. "/usr/bin/security 2>&1 >/dev/null find-generic-password -ga "
-      name
-      " | sed -En '/^password: / s,^password: \"(.*)\"$,\\1,p'"))
+  (.. "/usr/bin/security find-generic-password -wa " name))
 
 (fn run-command [command]
   (with-open [handle (io.popen command)]
