@@ -18,6 +18,8 @@ Clicking an entry opens the PR in the default browser.
 
 The menu bar item is simply a count of the number of PRs currently tracked.
 
+![screenshot](https://user-images.githubusercontent.com/5990738/162950320-cc6a87d8-6081-4e7a-955a-ff627ecd9e83.png)
+
 ### How to install
 
 If you are using [SpoonInstall](http://www.hammerspoon.org/Spoons/SpoonInstall.html) you can simply add this repo and use the [`andUse`](http://www.hammerspoon.org/Spoons/SpoonInstall.html#andUse) function. A minimal setup example looks like this
