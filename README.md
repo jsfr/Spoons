@@ -6,6 +6,8 @@ To use this you are expected to be running [Hammerspoon](https://www.hammerspoon
 
 ## PullRequests
 
+![Screenshot of PullRequests menubar](/images/PullRequests.png)
+
 A menubar item containg the Github Pull Requests the user is part of. The list is split into three parts:
 
 1. Users own PRs
@@ -16,7 +18,7 @@ An entry is marked read when new activity has happened on it, and a checkmark on
 
 Clicking an entry opens the PR in the default browser.
 
-The menu bar item is simply a count of the number of PRs currently tracked.
+The menubar item is simply a count of the number of PRs currently tracked.
 
 ### How to install
 
@@ -51,6 +53,42 @@ Once you have the token ready you can store it in the the keychain using the fol
 security add-generic-password -a github_api_token -s github_api_token -w [YOUR GH API TOKEN HERE]
 ```
 
-## YabaiSpace
+## YabaiSpaces
 
-WIP
+![Screenshot of YabaiSpaces menubar](/images/YabaiSpaces.png)
+
+A menubar item showing a list of spaces currently containing windows, as well as highlighting the currently active window.
+
+The item comes with the expectation that you are using yabai as a window manager, and that you have between 1 and 10 spaces.
+
+### How to install
+
+If you are using [SpoonInstall](http://www.hammerspoon.org/Spoons/SpoonInstall.html) you can simply add this repo and use the [`andUse`](http://www.hammerspoon.org/Spoons/SpoonInstall.html#andUse) function. A minimal setup example looks like this
+
+```lua
+require("hs.ipc")
+
+hs.loadSpoon("SpoonInstall")
+
+spoon.SpoonInstall.repos.jsfr = {
+  url = "https://github.com/jsfr/Spoons",
+  desc = "Personal Spoon repository of Jens Fredskov",
+  branch = "main"
+}
+
+spoon.SpoonInstall:andUse("YabaiSpaces", {repo = "jsfr"})
+```
+
+You will need to ensure that the `hs` IPC cli is installed on your system which can be done by using the [`hs.ipc.cliInstall`](https://www.hammerspoon.org/docs/hs.ipc.html#cliInstall)
+
+You will also need to add the following triggers to your `.yabairc`
+
+```sh
+## update spaces menubar item when changing space or moving an application
+yabai -m signal --add event=application_launched    action="hs -A -c 'spoon.YabaiSpaces.update()'"
+yabai -m signal --add event=application_deactivated action="hs -A -c 'spoon.YabaiSpaces.update()'"
+yabai -m signal --add event=application_terminated  action="hs -A -c 'spoon.YabaiSpaces.update()'"
+yabai -m signal --add event=space_changed           action="hs -A -c 'spoon.YabaiSpaces.update()'"
+```
+
+Finally you need to install the font [CD Numbers](https://www.dafont.com/cd-numbers.font) on your system to be able to show the space numbers in the menubar.
