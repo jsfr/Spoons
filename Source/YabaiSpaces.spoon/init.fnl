@@ -54,7 +54,7 @@
 
 (fn run-task []
   "Run the task to update the menubar item"
-  (let [command (hs.fs.pathToAbsolute "Spoons/YabaiSpaces.spoon/spaces.sh")]
+  (let [command (hs.spoons.resourcePath "spaces.sh")]
     (set obj.task (hs.task.new command callback))
     (let [environment (obj.task:environment)]
       (set environment.JQ_PATH obj.jqPath)
