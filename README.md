@@ -1,4 +1,4 @@
-# Spoons 🥄
+# jsfr's Spoons 🥄
 
 Personal Hammerspoon Spoons Repository
 
@@ -6,7 +6,7 @@ To use this you are expected to be running [Hammerspoon](https://www.hammerspoon
 
 ## PullRequests
 
-![Screenshot of PullRequests menubar](/images/PullRequests.png)
+<img src="/images/PullRequests.png" width=400 />
 
 A menubar item containg the Github Pull Requests the user is part of. The list is split into three parts:
 
@@ -29,14 +29,14 @@ hs.loadSpoon("SpoonInstall")
 
 spoon.SpoonInstall.repos.jsfr = {
   url = "https://github.com/jsfr/Spoons",
-  desc = "Personal Spoon repository of Jens Fredskov",
+  desc = "jsfr's Spoons,
   branch = "main"
 }
 
 spoon.SpoonInstall:andUse(
   "PullRequests", {
     config = {
-      username = "[YOUR GH USERNAME]",
+      username = "[INSERT GITHUB USERNAME]",
       keychainItem = "github_api_token"
     },
     repo = "jsfr",
@@ -50,12 +50,12 @@ You will also need a [Personal Access Token](https://github.com/settings/tokens)
 Once you have the token ready you can store it in the the keychain using the following command
 
 ```sh
-security add-generic-password -a github_api_token -s github_api_token -w [YOUR GH API TOKEN HERE]
+security add-generic-password -a github_api_token -s github_api_token -w [INSERT API TOKEN]
 ```
 
 ## YabaiSpaces
 
-![Screenshot of YabaiSpaces menubar](/images/YabaiSpaces.png)
+<img src="/images/YabaiSpaces.png" width=150 />
 
 A menubar item showing a list of spaces currently containing windows, as well as highlighting the currently active window.
 
@@ -72,7 +72,7 @@ hs.loadSpoon("SpoonInstall")
 
 spoon.SpoonInstall.repos.jsfr = {
   url = "https://github.com/jsfr/Spoons",
-  desc = "Personal Spoon repository of Jens Fredskov",
+  desc = "jsfr's Spoons",
   branch = "main"
 }
 
