@@ -9,8 +9,8 @@
 (set obj.__index obj)
 
 ; Metadata
-(set obj.name "PullRequests")
-(set obj.version "1.0")
+(set obj.name :PullRequests)
+(set obj.version :1.0)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -113,7 +113,7 @@
   (let [
         keychain (require :keychain)
         token (keychain.password-from-keychain obj.keychainItem)
-        headers {:Content-Type "application/json" :Authorization (.. "bearer " token)}
+        headers {:Content-Type :application/json :Authorization (.. "bearer " token)}
         url "https://api.github.com/graphql"
         data (.. "{\"query\": \"query ActivePullRequests($query: String!) { search(query: $query, type: ISSUE, first: 100) { nodes { ... on PullRequest { author { login } url title isReadByViewer isDraft reviewDecision reviewRequests(first: 100) { nodes { requestedReviewer { ... on User { login } } } } assignees(first: 100) { nodes { login } } } } } }\", \"variables\": { \"query\": \"sort:updated-desc type:pr state:open involves:" obj.username "\" } }")]
     (hs.http.asyncPost url data headers callback)))

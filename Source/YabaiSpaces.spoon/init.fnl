@@ -9,15 +9,15 @@
 (set obj.__index obj)
 
 ; Metadata
-(set obj.name "YabaiSpaces")
-(set obj.version "1.0")
+(set obj.name :YabaiSpaces)
+(set obj.version :1.1)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
 ; Configuration
 (set obj.menuItem nil)
-(set obj.yabaiPath "/opt/homebrew/bin/yabai")
-(set obj.jqPath "/opt/homebrew/bin/jq")
+(set obj.yabaiPath :/opt/homebrew/bin/yabai)
+(set obj.jqPath :/opt/homebrew/bin/jq)
 (set obj.task nil)
 (set obj.logger nil)
 
@@ -52,24 +52,35 @@
     (obj.task:terminate)
     (set obj.task nil)))
 
+(fn set-environment [task]
+  (let [environment (task:environment)]
+    (set environment.JQ_PATH obj.jqPath)
+    (set environment.YABAI_PATH obj.yabaiPath)
+    (task:setEnvironment environment)))
+
 (fn run-task []
   "Run the task to update the menubar item"
-  (let [command (hs.spoons.resourcePath "spaces.sh")]
-    (set obj.task (hs.task.new command callback))
-    (let [environment (obj.task:environment)]
-      (set environment.JQ_PATH obj.jqPath)
-      (set environment.YABAI_PATH obj.yabaiPath)
-      (obj.task:setEnvironment environment))
-    (obj.task:start)))
+  (set obj.task (-> (hs.spoons.resourcePath :spaces.sh)
+                    (hs.task.new callback)
+                    (set-environment)
+                    (: :start))))
+
+(fn obj.add_signals [self]
+  (-> :signals.sh
+      (hs.spoons.resourcePath)
+      (hs.task.new nil)
+      (set-environment)
+      (: :start)))
 
 (fn obj.update [self]
-  "Asynchronously update the menubar item"
   (terminate-task)
   (run-task))
 
 (fn obj.init [self]
   (set self.logger (hs.logger.new :YabaiSpaces))
   (set self.menuItem (hs.menubar.new))
+  (self:add_signals)
+  (hs.styledtext.loadFont (hs.spoons.resourcePath :cdnumbers.ttf))
   (self.menuItem:setTitle "[Updating...]")
   (self:update))
 

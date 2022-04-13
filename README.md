@@ -81,14 +81,15 @@ spoon.SpoonInstall:andUse("YabaiSpaces", {repo = "jsfr"})
 
 You will need to ensure that the `hs` IPC cli is installed on your system which can be done by using the [`hs.ipc.cliInstall`](https://www.hammerspoon.org/docs/hs.ipc.html#cliInstall)
 
-You will also need to add the following triggers to your `.yabairc`
+To ensure that the signals which the spoon adds to yabai are always present you may also want to add the following command to your `.yabairc`
 
 ```sh
-## update spaces menubar item when changing space or moving an application
-yabai -m signal --add event=application_launched    action="hs -A -c 'spoon.YabaiSpaces.update()'"
-yabai -m signal --add event=application_deactivated action="hs -A -c 'spoon.YabaiSpaces.update()'"
-yabai -m signal --add event=application_terminated  action="hs -A -c 'spoon.YabaiSpaces.update()'"
-yabai -m signal --add event=space_changed           action="hs -A -c 'spoon.YabaiSpaces.update()'"
-```
+## Add signals for Hammerspoon Yabai Widget
+hs -c "spoon.YabaiSpaces:add_signals()"
 
-Finally you need to install the font [CD Numbers](https://www.dafont.com/cd-numbers.font) on your system to be able to show the space numbers in the menubar.
+# go through all spaces to pick up all windows
+active_space=$(yabai -m query --spaces --space | jq -r ".index")
+last_space=$(yabai -m query --spaces | jq -r "[.[] | .index] | max")
+for i in $(seq 1 "$last_space"); do yabai -m space --focus "$i"; sleep 0.1; done
+yabai -m space --focus "$active_space"
+```
