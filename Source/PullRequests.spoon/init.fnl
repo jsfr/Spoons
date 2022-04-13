@@ -126,7 +126,7 @@
 
 (fn obj.start [self]
   (self.menuItem:setTitle "[PRs: ...]")
-  (self.timer:start)
+  (self.timer:setNextTrigger 0)
   self)
 
 (fn obj.stop [self]
