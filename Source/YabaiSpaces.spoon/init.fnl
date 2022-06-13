@@ -27,7 +27,7 @@
         inactive-color {:red 0.34 :green 0.37 :blue 0.39 :alpha 1.0}
         active-style {:font space-font :baselineOffset -5.0}
         inactive-style {:font space-font :baselineOffset -5.0 :color inactive-color}
-        space-icons {1 :e 2 :f 3 :g 4 :i 5 :j 6 :k 7 :l 8 :m 9 :n 10 :o :f :a}
+        space-icons {1 :e 2 :f 3 :g 4 :i 5 :j 6 :k 7 :l 8 :m 9 :n 10 :o 11 :r :f :a}
         space-icon-unknown :h]
     (hs.styledtext.new
       (or (?. space-icons space) space-icon-unknown)
