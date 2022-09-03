@@ -43,8 +43,7 @@
    :review-requested? (review-requested? node)
    :review-decision (?. node :reviewDecision)
    :author (?. node :author :login)
-   :assignee? (assignee? node)}
-   :repository (?. node :repository :name))
+   :assignee? (assignee? node)})
 
 (fn get-menu-title [total-count unread?]
   "Get the text of the menu item describing number of current PRs"
@@ -53,7 +52,7 @@
 
 (fn get-title [pull-request]
   "Get the title of a menu line describing the specific PR"
-  (let [title (.. "[" (?. pull-request :repository) "] " (?. pull-request :title))
+  (let [title (?. pull-request :title)
         text (if (?. pull-request :draft?) (.. "[Draft] " title) title)
         style (if (?. pull-request :unread?) obj.unreadStyle {})]
     (hs.styledtext.new text style)))
@@ -116,16 +115,7 @@
         token (keychain.password-from-keychain obj.keychainItem)
         headers {:Content-Type :application/json :Authorization (.. "bearer " token)}
         url "https://api.github.com/graphql"
-        data (.. "{\"query\": \"query ActivePullRequests($query: String!) { "
-                 "search(query: $query, type: ISSUE, first: 100) { "
-                 "nodes { ... on PullRequest { "
-                 "url title isReadByViewer isDraft reviewDecision "
-                 "author { login } "
-                 "repository { name } "
-                 "reviewRequests(first: 100) { nodes { requestedReviewer { ... on User { login } } } } "
-                 "assignees(first: 100) { nodes { login } } "
-                 "} } } }\", "
-                 "\"variables\": { \"query\": \"sort:updated-desc type:pr state:open involves:" obj.username "\" } }")]
+        data (.. "{\"query\": \"query ActivePullRequests($query: String!) { search(query: $query, type: ISSUE, first: 100) { nodes { ... on PullRequest { author { login } url title isReadByViewer isDraft reviewDecision reviewRequests(first: 100) { nodes { requestedReviewer { ... on User { login } } } } assignees(first: 100) { nodes { login } } } } } }\", \"variables\": { \"query\": \"sort:updated-desc type:pr state:open involves:" obj.username "\" } }")]
     (hs.http.asyncPost url data headers callback)))
 
 (fn obj.init [self]
