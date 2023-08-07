@@ -28,7 +28,7 @@ $(ZIPDIR)/%.zip: $(SPOONS_TMPDIR)/%
 
 $(DOCSDIR)/docs.json: $(SPOONS)
 	mkdir -p "$(DOCS_TMPDIR)"
-	python $(HAMMERSPOON_PATH)/scripts/docs/bin/build_docs.py \
+	python3 $(HAMMERSPOON_PATH)/scripts/docs/bin/build_docs.py \
 		-e $(HAMMERSPOON_PATH)/scripts/docs/templates/ \
 		-o $(DOCS_TMPDIR) \
 		-i "jsfr's Spoons" \

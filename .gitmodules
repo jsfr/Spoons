@@ -1,3 +1,6 @@
 ; [submodule "hammerspoon"]
 ; 	path = hammerspoon
 ; 	url = git@github.com:jsfr/hammerspoon.git
+[submodule "hammerspoon"]
+	path = hammerspoon
+	url = https://github.com/jsfr/hammerspoon.git
