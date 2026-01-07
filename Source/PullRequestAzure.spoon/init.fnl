@@ -32,7 +32,7 @@
 
 (fn get-ready-icon [pr]
   "Get the checkbox state based on merge status"
-  (match (?. pr :mergeStatus)
+  (case (?. pr :mergeStatus)
     :succeeded :on
     :rejectedByPolicy :mixed
     _ :off))
@@ -108,7 +108,15 @@
 
 (fn fetch-creator-prs []
   "Fetch PRs created by the user"
-  (let [query "[].{authorEmail: createdBy.uniqueName, authorName: createdBy.displayName, isDraft: isDraft, title: title, id: pullRequestId, repository: repository.name, mergeStatus: mergeStatus}"
+  (let [query (.. "[].{"
+                  "authorEmail: createdBy.uniqueName,"
+                  "authorName: createdBy.displayName,"
+                  "isDraft: isDraft,"
+                  "title: title,"
+                  "id: pullRequestId,"
+                  "repository: repository.name,"
+                  "mergeStatus: mergeStatus"
+                  "}")
         args [:repos :pr :list
               :--organization obj.organizationUrl
               :--project obj.project
@@ -119,7 +127,15 @@
 
 (fn fetch-reviewer-prs []
   "Fetch PRs where the user is a reviewer"
-  (let [query "[].{authorEmail: createdBy.uniqueName, authorName: createdBy.displayName, isDraft: isDraft, title: title, id: pullRequestId, repository: repository.name, mergeStatus: mergeStatus}"
+  (let [query (.. "[].{"
+                  "authorEmail: createdBy.uniqueName,"
+                  "authorName: createdBy.displayName,"
+                  "isDraft: isDraft,"
+                  "title: title,"
+                  "id: pullRequestId,"
+                  "repository: repository.name,"
+                  "mergeStatus: mergeStatus"
+                  "}")
         args [:repos :pr :list
               :--organization obj.organizationUrl
               :--project obj.project
