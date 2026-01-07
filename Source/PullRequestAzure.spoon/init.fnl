@@ -39,7 +39,7 @@
 
 (fn get-menu-title [total-count]
   "Get the text of the menu item describing number of current PRs"
-  (hs.styledtext.new (.. "[Azure PRs: " total-count "]")))
+  (hs.styledtext.new (tostring total-count)))
 
 (fn get-title [pull-request]
   "Get the title of a menu line describing the specific PR"
@@ -152,18 +152,19 @@
 (fn obj.init [self]
   (set self.logger (hs.logger.new :PullRequestAzure))
   (set self.menuItem (hs.menubar.new))
+  (self.menuItem:setIcon (hs.image.imageFromName "arrow.triangle.branch"))
   (set self.timer (hs.timer.new 60 update))
   self)
 
 (fn obj.start [self]
-  (self.menuItem:setTitle "[Azure PRs: ...]")
+  (self.menuItem:setTitle "...")
   (self.timer:start)
   (self.timer:setNextTrigger 0)
   self)
 
 (fn obj.stop [self]
   (self.timer:stop)
-  (self.menuItem:setTitle "[Azure PRs: ...]")
+  (self.menuItem:setTitle "...")
   (self.menuItem:setMenu nil)
   self)
 
