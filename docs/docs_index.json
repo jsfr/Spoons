@@ -1,5 +1,10 @@
 [
   {
+    "desc": "List of Azure DevOps PRs in a menubar item",
+    "name": "PullRequestAzure",
+    "type": "Module"
+  },
+  {
     "desc": "List of a users Github PRs in a menubar item",
     "name": "PullRequests",
     "type": "Module"
