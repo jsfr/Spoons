@@ -114,7 +114,7 @@
               :--project obj.project
               :--query query
               :--creator obj.userEmail]
-        task (hs.task.new obj.azPath args creator-callback)]
+        task (hs.task.new obj.azPath creator-callback args)]
     (task:start)))
 
 (fn fetch-reviewer-prs []
@@ -125,7 +125,7 @@
               :--project obj.project
               :--query query
               :--reviewer obj.userEmail]
-        task (hs.task.new obj.azPath args reviewer-callback)]
+        task (hs.task.new obj.azPath reviewer-callback args)]
     (task:start)))
 
 (fn update []
