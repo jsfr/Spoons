@@ -152,7 +152,9 @@
 (fn obj.init [self]
   (set self.logger (hs.logger.new :PullRequestAzure))
   (set self.menuItem (hs.menubar.new))
-  (self.menuItem:setIcon (hs.image.imageFromName "arrow.triangle.branch"))
+  (let [icon-path (hs.spoons.resourcePath "branch-icon.pdf")
+        icon (: (hs.image.imageFromPath icon-path) :setSize {:w 16 :h 16})]
+    (self.menuItem:setIcon icon true))
   (set self.timer (hs.timer.new 60 update))
   self)
 
