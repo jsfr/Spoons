@@ -149,11 +149,20 @@
   (fetch-creator-prs)
   (fetch-reviewer-prs))
 
+(fn make-icon []
+  (local code 0x100D8C)
+  (local char (hs.styledtext.new (utf8.char code) {:font {:name "SF Pro" :size 12}}))
+  (local canvas (hs.canvas.new {:x 0 :y 0 :h 0 :w 0}))
+  (canvas:size (canvas:minimumTextSize char))
+  (table.insert canvas {:type "text" :text char})
+  (local image (canvas:imageFromCanvas))
+  (canvas:delete) ; won't auto collect yet
+  (image))
+
 (fn obj.init [self]
   (set self.logger (hs.logger.new :PullRequestAzure))
   (set self.menuItem (hs.menubar.new))
-  (let [icon-path (hs.spoons.resourcePath "branch-icon.pdf")
-        icon (: (hs.image.imageFromPath icon-path) :setSize {:w 16 :h 16})]
+  (let [icon (make-icon)]
     (self.menuItem:setIcon icon true))
   (set self.timer (hs.timer.new 60 update))
   self)
