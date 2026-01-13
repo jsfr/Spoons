@@ -26,6 +26,32 @@
 ; State
 (local state {:creator-prs [] :reviewer-prs []})
 
+(fn make-icon []
+  "Create a branch icon using ASCII art"
+  (let [ascii "ASCII:
+. . . . . . . . . . . . . . . . .
+. . . . . . . . . . . . . . . . .
+. . . . . . . . 1 . . . . . . . .
+. . . . . . . . . 2 . . . . . . .
+. . . . . . . . . . 3 . . . . . .
+. . . . . . . . . . . 4 . . . . .
+. . . . . . . . . . . . 5 6 . . .
+. . . . . . . . . . . . . . 7 . .
+. . . . . . . . . . . . . . 8 . .
+. . . . . . . . A . . . . . . . .
+. . . . . . . . B . . . . . . . .
+. . . . . . . . C . . . . . . . .
+. . . . . . . . D . . . . . . . .
+. . . . . . . . E . . . . . . . .
+. . . . . . . . F . . . . . . . .
+. . . . . . . . G . . . . . . . .
+. . . . . . . . . . . . . . . . ."
+        context [{:strokeColor {:red 1 :green 1 :blue 1 :alpha 1}
+                  :fillColor {:alpha 0}
+                  :shouldClose false
+                  :lineWidth 1}]]
+    (hs.image.imageFromASCII ascii context)))
+
 (fn get-pull-request-url [pr]
   "Generate the URL for a pull request"
   (.. obj.organizationUrl obj.project "/_git/" (?. pr :repository) "/pullrequest/" (?. pr :id)))
@@ -148,16 +174,6 @@
   "Fetch both creator and reviewer PRs"
   (fetch-creator-prs)
   (fetch-reviewer-prs))
-
-(fn make-icon []
-  (local code 0x100D8C)
-  (local char (hs.styledtext.new (utf8.char code) {:font {:name "SF Pro" :size 12}}))
-  (local canvas (hs.canvas.new {:x 0 :y 0 :h 0 :w 0}))
-  (canvas:size (canvas:minimumTextSize char))
-  (table.insert canvas {:type "text" :text char})
-  (local image (canvas:imageFromCanvas))
-  (canvas:delete) ; won't auto collect yet
-  (image))
 
 (fn obj.init [self]
   (set self.logger (hs.logger.new :PullRequestAzure))
