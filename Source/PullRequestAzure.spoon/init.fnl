@@ -45,11 +45,7 @@
 . . . . . . . . . . . . . . . . .
 . . . . 3 . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . ."
-        context [{:lineWidth 1.2}
-                 {:lineWidth 1.2}
-                 {:lineWidth 1.2}
-                 {:lineWidth 1.2}
-                 {:lineWidth 1.2}]]
+        context []]
     (hs.image.imageFromASCII ascii context)))
 
 (fn get-pull-request-url [pr]
