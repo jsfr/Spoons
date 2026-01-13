@@ -45,7 +45,10 @@
 . . . . . . . . . . . . . . . . .
 . . . . 3 . . . . . . . . . . . .
 . . . . . . . . . . . . . . . . ."
-        context []]
+        context [{:strokeColor {:red 1 :green 1 :blue 1 :alpha 1}
+                  :fillColor {:alpha 0}
+                  :shouldClose false
+                  :lineWidth 1.2}]]
     (hs.image.imageFromASCII ascii context)))
 
 (fn get-pull-request-url [pr]
