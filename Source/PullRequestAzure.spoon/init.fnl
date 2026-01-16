@@ -10,7 +10,7 @@
 
 ; Metadata
 (set obj.name :PullRequestAzure)
-(set obj.version :1.1)
+(set obj.version :1.2)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -65,6 +65,17 @@
 (fn get-menu-title [total-count]
   "Get the text of the menu item describing number of current PRs"
   (hs.styledtext.new (tostring total-count)))
+
+(fn get-error-title []
+  "Get a red error title for the menu item"
+  (let [error-style {:color {:red 1.0 :green 0 :blue 0 :alpha 1.0}}]
+    (hs.styledtext.new "error" error-style)))
+
+(fn show-error [error-message]
+  "Update the menubar to show an error state"
+  (obj.logger.e error-message)
+  (obj.menuItem:setTitle (get-error-title))
+  (obj.menuItem:setMenu nil))
 
 (fn get-title [pull-request]
   "Get the title of a menu line describing the specific PR"
@@ -121,7 +132,7 @@
     (do
       (set state.creator-prs (parse-pr-response std-out))
       (update-menu))
-    (obj.logger.e (.. "Failed to fetch creator PRs: " std-err))))
+    (show-error (.. "Failed to fetch creator PRs: " std-err))))
 
 (fn reviewer-callback [exit-code std-out std-err]
   "Handle the response from fetching reviewer PRs"
@@ -129,7 +140,7 @@
     (do
       (set state.reviewer-prs (parse-pr-response std-out))
       (update-menu))
-    (obj.logger.e (.. "Failed to fetch reviewer PRs: " std-err))))
+    (show-error (.. "Failed to fetch reviewer PRs: " std-err))))
 
 (fn fetch-creator-prs []
   "Fetch PRs created by the user"
