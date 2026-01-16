@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents when working with code in this repository.
 
 ## Repository Overview
 
@@ -22,6 +22,8 @@ The Makefile orchestrates the build process:
 1. Compiles `.fnl` files to `.lua` using `fennel --require-as-include --compile`
 2. Creates `.spoon.zip` packages in `Spoons/` directory
 3. Generates HTML documentation using Python (via `uv`)
+
+**IMPORTANT:** It's only necessary to run `make clean` when you specifically want to rebuild all zip files or have messed something up in the build artifacts. Generally you only need to run `make` as it will rebuild any artifact where the source changed.
 
 ### Build Output Directories
 
