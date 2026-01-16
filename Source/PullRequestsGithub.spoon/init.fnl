@@ -1,15 +1,15 @@
-;;; === PullRequests ===
+;;; === PullRequestsGithub ===
 ;;;
 ;;; List of a users Github PRs in a menubar item
 ;;;
-;;; Download: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip)
+;;; Download: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequestsGithub.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequestsGithub.spoon.zip)
 
 ; Prepare object
 (local obj {})
 (set obj.__index obj)
 
 ; Metadata
-(set obj.name :PullRequests)
+(set obj.name :PullRequestsGithub)
 (set obj.version :1.0)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
@@ -119,7 +119,7 @@
     (hs.http.asyncPost url data headers callback)))
 
 (fn obj.init [self]
-  (set self.logger (hs.logger.new :PullRequests))
+  (set self.logger (hs.logger.new :PullRequestsGithub))
   (set self.menuItem (hs.menubar.new))
   (set self.timer (hs.timer.new 60 update))
   self)

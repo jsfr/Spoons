@@ -26,10 +26,10 @@
     "Method": [],
     "Variable": [],
     "desc": "List of a users Github PRs in a menubar item",
-    "doc": "List of a users Github PRs in a menubar item\n\nDownload: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip)",
+    "doc": "List of a users Github PRs in a menubar item\n\nDownload: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequestsGithub.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequestsGithub.spoon.zip)",
     "items": [],
-    "name": "PullRequests",
-    "stripped_doc": "\nDownload: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequests.spoon.zip)",
+    "name": "PullRequestsGithub",
+    "stripped_doc": "\nDownload: [https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequestsGithub.spoon.zip](https://github.com/jsfr/Spoons/raw/main/Spoons/PullRequestsGithub.spoon.zip)",
     "submodules": [],
     "type": "Module"
   },
