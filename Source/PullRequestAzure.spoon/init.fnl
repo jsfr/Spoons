@@ -10,7 +10,7 @@
 
 ; Metadata
 (set obj.name :PullRequestAzure)
-(set obj.version :1.3)
+(set obj.version :1.4)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -24,7 +24,7 @@
 (set obj.logger nil)
 
 ; State
-(local state {:creator-prs [] :reviewer-prs []})
+(local state {:creator-prs [] :reviewer-prs [] :ci-status {}})
 
 (fn make-icon []
   "Create a branch icon using ASCII art"
@@ -78,11 +78,13 @@
   (obj.menuItem:setMenu nil))
 
 (fn get-ci-status-style [pull-request]
-  "Get text style based on CI/merge status"
-  (case (?. pull-request :mergeStatus)
-    :succeeded {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
-    :rejectedByPolicy {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
-    _ {}))
+  "Get text style based on CI status"
+  (let [pr-id (?. pull-request :id)
+        ci-status (. state.ci-status pr-id)]
+    (case ci-status
+      :passed {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
+      :failed {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
+      _ {})))
 
 (fn get-title [pull-request]
   "Get the title of a menu line describing the specific PR"
@@ -124,7 +126,55 @@
   (let [prs (or (hs.json.decode json-output) [])]
     prs))
 
-(fn update-menu []
+(fn parse-ci-status [policies]
+  "Determine CI status from policy evaluations.
+   Returns :passed if all build policies approved, :failed if any rejected, nil otherwise."
+  (let [build-policies (icollect [_ p (ipairs policies)]
+                         (when (= (?. p :configuration :type :displayName) "Build") p))]
+    (if (= (length build-policies) 0)
+      nil
+      (do
+        (var has-rejected false)
+        (var all-approved true)
+        (each [_ p (ipairs build-policies)]
+          (let [status (?. p :status)]
+            (when (= status "rejected")
+              (set has-rejected true))
+            (when (not= status "approved")
+              (set all-approved false))))
+        (if has-rejected :failed
+            all-approved :passed
+            nil)))))
+
+; Forward declaration for update-menu
+(var update-menu nil)
+
+(fn make-policy-callback [pr-id]
+  "Create a callback function for policy status fetch"
+  (fn [exit-code std-out _std-err]
+    (when (= exit-code 0)
+      (let [policies (or (hs.json.decode std-out) [])
+            ci-status (parse-ci-status policies)]
+        (tset state.ci-status pr-id ci-status)
+        (update-menu)))))
+
+(fn fetch-policy-status [pr-id]
+  "Fetch policy evaluations for a specific PR"
+  (let [args [:repos :pr :policy :list
+              :--id (tostring pr-id)
+              :--organization obj.organizationUrl]
+        callback (make-policy-callback pr-id)
+        task (hs.task.new obj.azPath callback args)]
+    (task:start)))
+
+(fn fetch-policy-status-for-prs [prs]
+  "Fetch policy status for a list of PRs"
+  (each [_ pr (ipairs prs)]
+    (let [pr-id (?. pr :id)]
+      (when pr-id
+        (fetch-policy-status pr-id)))))
+
+(set update-menu (fn []
   "Update the menubar with current PR data"
   (let [creator-prs state.creator-prs
         reviewer-prs state.reviewer-prs
@@ -132,22 +182,24 @@
         menu-title (get-menu-title total-count)
         menu-table (get-menu-table creator-prs reviewer-prs)]
     (obj.menuItem:setTitle menu-title)
-    (obj.menuItem:setMenu menu-table)))
+    (obj.menuItem:setMenu menu-table))))
 
 (fn creator-callback [exit-code std-out std-err]
   "Handle the response from fetching creator PRs"
   (if (= exit-code 0)
-    (do
-      (set state.creator-prs (parse-pr-response std-out))
-      (update-menu))
+    (let [prs (parse-pr-response std-out)]
+      (set state.creator-prs prs)
+      (update-menu)
+      (fetch-policy-status-for-prs prs))
     (show-error (.. "Failed to fetch creator PRs: " std-err))))
 
 (fn reviewer-callback [exit-code std-out std-err]
   "Handle the response from fetching reviewer PRs"
   (if (= exit-code 0)
-    (do
-      (set state.reviewer-prs (parse-pr-response std-out))
-      (update-menu))
+    (let [prs (parse-pr-response std-out)]
+      (set state.reviewer-prs prs)
+      (update-menu)
+      (fetch-policy-status-for-prs prs))
     (show-error (.. "Failed to fetch reviewer PRs: " std-err))))
 
 (fn fetch-creator-prs []
@@ -211,6 +263,10 @@
   (self.timer:stop)
   (self.menuItem:setTitle "...")
   (self.menuItem:setMenu nil)
+  ; Clear state
+  (set state.creator-prs [])
+  (set state.reviewer-prs [])
+  (set state.ci-status {})
   self)
 
 obj
