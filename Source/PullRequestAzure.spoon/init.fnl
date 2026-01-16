@@ -10,7 +10,7 @@
 
 ; Metadata
 (set obj.name :PullRequestAzure)
-(set obj.version :1.5)
+(set obj.version :1.6)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -86,13 +86,20 @@
       :failed {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
       _ {})))
 
+(fn has-merge-conflicts [pull-request]
+  "Check if the PR has merge conflicts"
+  (= (?. pull-request :mergeStatus) :conflicts))
+
 (fn get-title [pull-request]
   "Get the title of a menu line describing the specific PR"
   (let [title (?. pull-request :title)
         draft-style {:color {:red 0.5 :green 0.5 :blue 0.5 :alpha 1.0}}
+        conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}
         ci-style (get-ci-status-style pull-request)
         text (if (?. pull-request :isDraft) (.. "[Draft] " title) title)
-        style (if (?. pull-request :isDraft) draft-style ci-style)]
+        style (if (?. pull-request :isDraft) draft-style
+                  (has-merge-conflicts pull-request) conflict-style
+                  ci-style)]
     (hs.styledtext.new text style)))
 
 (fn get-menu-line [pull-request]
