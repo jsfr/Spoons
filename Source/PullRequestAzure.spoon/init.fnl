@@ -10,7 +10,7 @@
 
 ; Metadata
 (set obj.name :PullRequestAzure)
-(set obj.version :1.4)
+(set obj.version :1.5)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -24,7 +24,7 @@
 (set obj.logger nil)
 
 ; State
-(local state {:creator-prs [] :reviewer-prs [] :ci-status {}})
+(local state {:creator-prs [] :reviewer-prs [] :ci-status {} :last-update nil})
 
 (fn make-icon []
   "Create a branch icon using ASCII art"
@@ -101,12 +101,22 @@
    :fn (fn [] (hs.urlevent.openURL (get-pull-request-url pull-request)))
    :state (get-ready-icon pull-request)})
 
+(fn get-last-update-text []
+  "Get formatted last update time"
+  (if state.last-update
+    (.. "Last update: " (os.date "%Y-%m-%d %H:%M:%S" state.last-update))
+    "Last update: never"))
+
 (fn get-menu-table [creator-prs reviewer-prs]
-  "Build the menu table with creator PRs, separator, and reviewer PRs"
+  "Build the menu table with creator PRs, separator, reviewer PRs, and footer"
   (let [menu-table {}
         separator {:title :-}
         empty-style {:color {:red 0.5 :green 0.5 :blue 0.5 :alpha 1.0}}
-        empty-block {:title (hs.styledtext.new :n/a empty-style)}]
+        empty-block {:title (hs.styledtext.new :n/a empty-style)}
+        reload-line {:title "⟳ Reload Hammerspoon"
+                     :fn (fn [] (hs.reload))}
+        last-update-line {:title (hs.styledtext.new (get-last-update-text) empty-style)
+                          :disabled true}]
     ; Add creator PRs
     (if (> (length creator-prs) 0)
       (each [_ pr (ipairs creator-prs)]
@@ -119,6 +129,10 @@
       (each [_ pr (ipairs reviewer-prs)]
         (table.insert menu-table (get-menu-line pr)))
       (table.insert menu-table empty-block))
+    ; Add footer
+    (table.insert menu-table separator)
+    (table.insert menu-table reload-line)
+    (table.insert menu-table last-update-line)
     menu-table))
 
 (fn parse-pr-response [json-output]
@@ -242,6 +256,7 @@
 
 (fn update []
   "Fetch both creator and reviewer PRs"
+  (set state.last-update (os.time))
   (fetch-creator-prs)
   (fetch-reviewer-prs))
 
@@ -267,6 +282,7 @@
   (set state.creator-prs [])
   (set state.reviewer-prs [])
   (set state.ci-status {})
+  (set state.last-update nil)
   self)
 
 obj
