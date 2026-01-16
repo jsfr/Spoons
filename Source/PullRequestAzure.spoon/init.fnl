@@ -55,12 +55,13 @@
   "Generate the URL for a pull request"
   (.. obj.organizationUrl obj.project "/_git/" (?. pr :repository) "/pullrequest/" (?. pr :id)))
 
-(fn get-ready-icon [pr]
-  "Get the checkbox state based on merge status"
-  (case (?. pr :mergeStatus)
-    :succeeded :on
-    :rejectedByPolicy :mixed
-    _ :off))
+(fn get-status-emoji [pull-request]
+  "Get emoji prefix based on merge status"
+  (case (?. pull-request :mergeStatus)
+    :succeeded "✅ "
+    :rejectedByPolicy "❌ "
+    :conflicts "⚔️ "
+    _ "⏳ "))
 
 (fn get-menu-title [total-count]
   "Get the text of the menu item describing number of current PRs"
@@ -93,6 +94,7 @@
 (fn get-title [pull-request]
   "Get the title of a menu line describing the specific PR"
   (let [title (?. pull-request :title)
+        emoji (get-status-emoji pull-request)
         draft-style {:color {:red 0.5 :green 0.5 :blue 0.5 :alpha 1.0}}
         conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}
         ci-style (get-ci-status-style pull-request)
@@ -100,13 +102,12 @@
         style (if (?. pull-request :isDraft) draft-style
                   (has-merge-conflicts pull-request) conflict-style
                   ci-style)]
-    (hs.styledtext.new text style)))
+    (hs.styledtext.new (.. emoji text) style)))
 
 (fn get-menu-line [pull-request]
   "Get the full menu line for a specific PR to be inserted into the menu"
   {:title (get-title pull-request)
-   :fn (fn [] (hs.urlevent.openURL (get-pull-request-url pull-request)))
-   :state (get-ready-icon pull-request)})
+   :fn (fn [] (hs.urlevent.openURL (get-pull-request-url pull-request)))})
 
 (fn get-last-update-text []
   "Get formatted last update time"
@@ -120,7 +121,7 @@
         separator {:title :-}
         empty-style {:color {:red 0.5 :green 0.5 :blue 0.5 :alpha 1.0}}
         empty-block {:title (hs.styledtext.new :n/a empty-style)}
-        reload-line {:title "⟳ Reload Hammerspoon"
+        reload-line {:title "🔄 Reload Hammerspoon"
                      :fn (fn [] (hs.reload))}
         last-update-line {:title (hs.styledtext.new (get-last-update-text) empty-style)
                           :disabled true}]
