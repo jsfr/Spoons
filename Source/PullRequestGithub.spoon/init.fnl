@@ -202,11 +202,11 @@
   (set self.menuItem (hs.menubar.new))
   (let [icon (make-icon)]
     (self.menuItem:setIcon icon true))
-  (set state.token (fetch-token self.skatePath self.skateItem))
   (set self.timer (hs.timer.new 60 update))
   self)
 
 (fn obj.start [self]
+  (set state.token (fetch-token self.skatePath self.skateItem))
   (self.menuItem:setTitle "...")
   (self.timer:start)
   (self.timer:setNextTrigger 0)
