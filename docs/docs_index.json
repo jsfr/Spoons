@@ -6,7 +6,7 @@
   },
   {
     "desc": "List of a users Github PRs in a menubar item",
-    "name": "PullRequestsGithub",
+    "name": "PullRequestGithub",
     "type": "Module"
   },
   {

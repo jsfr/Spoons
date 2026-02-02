@@ -4,21 +4,19 @@ Personal Hammerspoon Spoons Repository
 
 To use this you are expected to be running [Hammerspoon](https://www.hammerspoon.org/), and it is recommended to set up [SpoonInstall](http://www.hammerspoon.org/Spoons/SpoonInstall.html) for easy use of Spoons. See e.g. [this guide](https://zzamboni.org/post/using-spoons-in-hammerspoon/) for easy setup.
 
-## PullRequestsGithub
+## PullRequestGithub
 
 <img src="/images/PullRequests.png" width=400 />
 
-A menubar item contains the GitHub Pull Requests the user is part of. The list is split into three parts:
+A menubar item showing GitHub Pull Requests the user is part of. The list is split into three parts:
 
 1. Users own PRs.
 2. PRs with review requests to be done.
-3. PRs with review requests done.
+3. PRs the user is otherwise involved in.
 
-An entry is marked read when new activity has happened on it, and a checkmark on or dash indicates whether the PR is approved or has requests for change.
+Each entry shows the PR status with emoji indicators (✅ approved, ❌ changes requested, ⚔️ conflicts, ⏳ pending). CI check status is also displayed via text color. Draft PRs are shown in grey.
 
 Clicking an entry opens the PR in the default browser.
-
-The menubar item is simply a count of the number of PRs currently tracked.
 
 ### How to install
 
@@ -29,15 +27,15 @@ hs.loadSpoon("SpoonInstall")
 
 spoon.SpoonInstall.repos.jsfr = {
   url = "https://github.com/jsfr/Spoons",
-  desc = "jsfr's Spoons,
+  desc = "jsfr's Spoons",
   branch = "main"
 }
 
 spoon.SpoonInstall:andUse(
-  "PullRequestsGithub", {
+  "PullRequestGithub", {
     config = {
       username = "[INSERT GITHUB USERNAME]",
-      keychainItem = "github_api_token"
+      skateItem = "github-api-token"
     },
     repo = "jsfr",
     start = true
@@ -45,12 +43,10 @@ spoon.SpoonInstall:andUse(
 )
 ```
 
-You will also need a [Personal Access Token](https://github.com/settings/tokens) stored in the Keychain under the name you chose in the setup. This token should have the `repo` scope
-
-Once you have the token ready you can store it in the keychain using the following command
+You will need a [Personal Access Token](https://github.com/settings/tokens) with the `repo` scope, stored in [skate](https://github.com/charmbracelet/skate). You can store it using:
 
 ```sh
-security add-generic-password -a github_api_token -s github_api_token -w [INSERT API TOKEN]
+skate set github-api-token [INSERT API TOKEN]
 ```
 
 ## PullRequestsAzure
