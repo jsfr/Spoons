@@ -188,3 +188,9 @@ spoon.SpoonInstall:andUse("SpoonName", {
   start = true
 })
 ```
+
+## IMPORTANT
+
+- Use `jj` instead of `git` (You can learn how using the `working-with-jj` skill).
+- Always use the `jj-todo-workflow` skill when planning and implementing changes.
+- Never leave empty revisions in the history. When done with changes, squash any empty intermediate revisions before moving to a new empty change. Use `jj abandon` on any empty revisions that shouldn't be there.
