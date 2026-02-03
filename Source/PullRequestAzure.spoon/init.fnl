@@ -10,7 +10,7 @@
 
 ; Metadata
 (set obj.name :PullRequestAzure)
-(set obj.version :1.6)
+(set obj.version :1.7)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -19,6 +19,7 @@
 (set obj.project nil)
 (set obj.userEmail nil)
 (set obj.azPath :/opt/homebrew/bin/az)
+(set obj.ignoredRepos [])
 (set obj.menuItem nil)
 (set obj.timer nil)
 (set obj.logger nil)
@@ -148,6 +149,15 @@
   (let [prs (or (hs.json.decode json-output) [])]
     prs))
 
+(fn filter-ignored-repos [prs]
+  "Filter out PRs from ignored repositories"
+  (if (= (length obj.ignoredRepos) 0)
+    prs
+    (let [ignored (collect [_ repo (ipairs obj.ignoredRepos)] repo true)]
+      (icollect [_ pr (ipairs prs)]
+        (when (not (. ignored (?. pr :repository)))
+          pr)))))
+
 (fn parse-ci-status [policies]
   "Determine CI status from policy evaluations.
    Returns :passed if all build policies approved, :failed if any rejected, nil otherwise."
@@ -209,7 +219,7 @@
 (fn creator-callback [exit-code std-out std-err]
   "Handle the response from fetching creator PRs"
   (if (= exit-code 0)
-    (let [prs (parse-pr-response std-out)]
+    (let [prs (filter-ignored-repos (parse-pr-response std-out))]
       (set state.creator-prs prs)
       (update-menu)
       (fetch-policy-status-for-prs prs))
@@ -218,7 +228,7 @@
 (fn reviewer-callback [exit-code std-out std-err]
   "Handle the response from fetching reviewer PRs"
   (if (= exit-code 0)
-    (let [prs (parse-pr-response std-out)]
+    (let [prs (filter-ignored-repos (parse-pr-response std-out))]
       (set state.reviewer-prs prs)
       (update-menu)
       (fetch-policy-status-for-prs prs))
