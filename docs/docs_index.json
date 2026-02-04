@@ -1,5 +1,15 @@
 [
   {
+    "desc": "============================================================",
+    "name": "",
+    "type": "Module"
+  },
+  {
+    "desc": "List of a users Github and Azure DevOps PRs in a menubar item",
+    "name": "GHADOPullRequest",
+    "type": "Module"
+  },
+  {
     "desc": "List of Azure DevOps PRs in a menubar item",
     "name": "PullRequestAzure",
     "type": "Module"
