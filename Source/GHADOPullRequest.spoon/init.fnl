@@ -10,7 +10,7 @@
 
 ; Metadata
 (set obj.name :GHADOPullRequest)
-(set obj.version :1.0)
+(set obj.version :1.1)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -148,9 +148,9 @@
         :CHANGES_REQUESTED "❌ "
         _ "⏳ ")))
 
-(fn github-get-ci-status-style [pull-request]
+(fn github-get-ci-status-style [ci-status]
   "Get text style based on CI/check status (GitHub)"
-  (case (?. pull-request :ci-status)
+  (case ci-status
     :SUCCESS {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
     :FAILURE {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
     :ERROR {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
@@ -158,9 +158,10 @@
 
 (fn github-get-style [node]
   "Get the display style for a GitHub PR"
-  (let [conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}]
+  (let [conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}
+        ci-status (?. node :commits :nodes 1 :commit :statusCheckRollup :state)]
     (if (= (?. node :mergeable) :CONFLICTING) conflict-style
-        (github-get-ci-status-style node))))
+        (github-get-ci-status-style ci-status))))
 
 (fn review-requested? [node]
   "Check if a PR has been requested to be reviewed by the user"
