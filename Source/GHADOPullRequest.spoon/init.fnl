@@ -10,7 +10,7 @@
 
 ; Metadata
 (set obj.name :GHADOPullRequest)
-(set obj.version :1.1)
+(set obj.version :1.2)
 (set obj.author "Jens Fredskov <jensfredskov@gmail.com>")
 (set obj.license "MIT - https://opensource.org/licenses/MIT")
 
@@ -44,7 +44,6 @@
               :github-involved-prs []
               :azure-creator-prs []
               :azure-reviewer-prs []
-              :azure-ci-status {}
               :token nil
               :last-update nil})
 
@@ -94,16 +93,31 @@
     (.. "Last update: " (os.date "%Y-%m-%d %H:%M:%S" state.last-update))
     "Last update: never"))
 
+(fn get-icons [pr]
+  "Get status icons for a PR"
+  (let [ci-icon (if (?. pr :draft?) ""
+                    (case (?. pr :ci-status)
+                      :success "✅ "
+                      :failure "❌ "
+                      :running "⏳ "
+                      _ ""))
+        conflict-icon (if (?. pr :has-conflicts?) "⚔️ " "")]
+    (.. ci-icon conflict-icon)))
+
+(fn get-style [pr]
+  "Get text style for a PR"
+  (if (?. pr :draft?) {:color {:red 0.5 :green 0.5 :blue 0.5 :alpha 1.0}}
+      (= (?. pr :review-status) :approved) {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
+      (= (?. pr :review-status) :rejected) {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
+      {}))
+
 (fn get-title [pull-request]
   "Get the title of a menu line describing the specific PR"
   (let [title (?. pull-request :title)
-        source-prefix (if (= (?. pull-request :source) :github) "[GH] " "[ADO] ")
-        emoji (?. pull-request :status-emoji)
-        draft-style {:color {:red 0.5 :green 0.5 :blue 0.5 :alpha 1.0}}
+        icons (get-icons pull-request)
         text (if (?. pull-request :draft?) (.. "[Draft] " title) title)
-        style (if (?. pull-request :draft?) draft-style
-                  (?. pull-request :style))]
-    (hs.styledtext.new (.. source-prefix emoji text) style)))
+        style (get-style pull-request)]
+    (hs.styledtext.new (.. icons text) style)))
 
 (fn get-menu-line [pull-request]
   "Get the full menu line for a specific PR to be inserted into the menu"
@@ -140,29 +154,6 @@
 ;;; GitHub logic
 ;;; ============================================================
 
-(fn github-get-status-emoji [pull-request]
-  "Get emoji prefix based on review decision and mergeable status (GitHub)"
-  (if (= (?. pull-request :mergeable) :CONFLICTING) "⚔️ "
-      (case (?. pull-request :review-decision)
-        :APPROVED "✅ "
-        :CHANGES_REQUESTED "❌ "
-        _ "⏳ ")))
-
-(fn github-get-ci-status-style [ci-status]
-  "Get text style based on CI/check status (GitHub)"
-  (case ci-status
-    :SUCCESS {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
-    :FAILURE {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
-    :ERROR {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
-    _ {}))
-
-(fn github-get-style [node]
-  "Get the display style for a GitHub PR"
-  (let [conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}
-        ci-status (?. node :commits :nodes 1 :commit :statusCheckRollup :state)]
-    (if (= (?. node :mergeable) :CONFLICTING) conflict-style
-        (github-get-ci-status-style ci-status))))
-
 (fn review-requested? [node]
   "Check if a PR has been requested to be reviewed by the user"
   (hs.fnutils.some
@@ -177,18 +168,28 @@
 
 (fn normalize-github-pr [node]
   "Map a GraphQL PR node to the common normalized format"
-  {:title (?. node :title)
-   :url (?. node :url)
-   :draft? (?. node :isDraft)
-   :source :github
-   :status-emoji (github-get-status-emoji node)
-   :style (github-get-style node)
-   :review-requested? (review-requested? node)
-   :review-decision (?. node :reviewDecision)
-   :mergeable (?. node :mergeable)
-   :ci-status (?. node :commits :nodes 1 :commit :statusCheckRollup :state)
-   :author (?. node :author :login)
-   :assignee? (assignee? node)})
+  (let [review-decision (?. node :reviewDecision)
+        ci-state (?. node :commits :nodes 1 :commit :statusCheckRollup :state)
+        mergeable (?. node :mergeable)]
+    {:title (?. node :title)
+     :url (?. node :url)
+     :draft? (?. node :isDraft)
+     :source :github
+     :review-status (case review-decision
+                      :APPROVED :approved
+                      :CHANGES_REQUESTED :rejected
+                      _ :pending)
+     :ci-status (case ci-state
+                  :SUCCESS :success
+                  :FAILURE :failure
+                  :ERROR :failure
+                  :PENDING :running
+                  :EXPECTED :running
+                  _ :none)
+     :has-conflicts? (= mergeable :CONFLICTING)
+     :review-requested? (review-requested? node)
+     :author (?. node :author :login)
+     :assignee? (assignee? node)}))
 
 (fn split-github-pull-requests [pull-requests]
   "Split GitHub PRs into user, review, and involved categories"
@@ -233,32 +234,23 @@
 ;;; Azure logic
 ;;; ============================================================
 
-(fn azure-get-status-emoji [pull-request]
-  "Get emoji prefix based on merge status (Azure)"
-  (case (?. pull-request :mergeStatus)
-    :succeeded "✅ "
-    :rejectedByPolicy "❌ "
-    :conflicts "⚔️ "
-    _ "⏳ "))
-
-(fn azure-get-ci-status-style [pull-request]
-  "Get text style based on CI status (Azure)"
-  (let [pr-id (?. pull-request :id)
-        ci-status (. state.azure-ci-status pr-id)]
-    (case ci-status
-      :passed {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
-      :failed {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
-      _ {})))
-
-(fn azure-get-style [pull-request]
-  "Get the display style for an Azure PR"
-  (let [conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}]
-    (if (= (?. pull-request :mergeStatus) :conflicts) conflict-style
-        (azure-get-ci-status-style pull-request))))
-
 (fn get-pull-request-url [pr]
   "Generate the URL for an Azure DevOps pull request"
   (.. obj.organizationUrl obj.project "/_git/" (?. pr :repository) "/pullrequest/" (?. pr :id)))
+
+(fn azure-get-review-status [pr]
+  "Determine review status from Azure reviewer votes"
+  (let [votes (or (?. pr :reviewerVotes) [])]
+    (var has-approval false)
+    (var has-rejection false)
+    (each [_ vote (ipairs votes)]
+      (when (or (= vote -10) (= vote -5))
+        (set has-rejection true))
+      (when (or (= vote 10) (= vote 5))
+        (set has-approval true)))
+    (if has-rejection :rejected
+        has-approval :approved
+        :pending)))
 
 (fn normalize-azure-pr [pr]
   "Map an Azure CLI PR response to the common normalized format"
@@ -266,8 +258,9 @@
    :url (get-pull-request-url pr)
    :draft? (?. pr :isDraft)
    :source :azure
-   :status-emoji (azure-get-status-emoji pr)
-   :style (azure-get-style pr)
+   :review-status (azure-get-review-status pr)
+   :ci-status :none
+   :has-conflicts? (= (?. pr :mergeStatus) :conflicts)
    :id (?. pr :id)
    :mergeStatus (?. pr :mergeStatus)})
 
@@ -287,11 +280,11 @@
 
 (fn parse-ci-status [policies]
   "Determine CI status from policy evaluations.
-   Returns :passed if all build policies approved, :failed if any rejected, nil otherwise."
+   Returns :success, :failure, :running, or :none."
   (let [build-policies (icollect [_ p (ipairs policies)]
                          (when (= (?. p :configuration :type :displayName) "Build") p))]
     (if (= (length build-policies) 0)
-      nil
+      :none
       (do
         (var has-rejected false)
         (var all-approved true)
@@ -301,9 +294,9 @@
               (set has-rejected true))
             (when (not= status "approved")
               (set all-approved false))))
-        (if has-rejected :failed
-            all-approved :passed
-            nil)))))
+        (if has-rejected :failure
+            all-approved :success
+            :running)))))
 
 (fn make-policy-callback [pr-id]
   "Create a callback function for policy status fetch"
@@ -311,30 +304,12 @@
     (when (= exit-code 0)
       (let [policies (or (hs.json.decode std-out) [])
             ci-status (parse-ci-status policies)]
-        (tset state.azure-ci-status pr-id ci-status)
-        ; Re-normalize azure PRs with updated CI status and refresh menu
-        (set state.azure-creator-prs
-          (icollect [_ pr (ipairs state.azure-creator-prs)]
-            (if (= (?. pr :id) pr-id)
-              (doto pr
-                (tset :style (let [conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}]
-                               (if (= (?. pr :mergeStatus) :conflicts) conflict-style
-                                   (case ci-status
-                                     :passed {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
-                                     :failed {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
-                                     _ {})))))
-              pr)))
-        (set state.azure-reviewer-prs
-          (icollect [_ pr (ipairs state.azure-reviewer-prs)]
-            (if (= (?. pr :id) pr-id)
-              (doto pr
-                (tset :style (let [conflict-style {:color {:red 0.9 :green 0.7 :blue 0 :alpha 1.0}}]
-                               (if (= (?. pr :mergeStatus) :conflicts) conflict-style
-                                   (case ci-status
-                                     :passed {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
-                                     :failed {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
-                                     _ {})))))
-              pr)))
+        (each [_ pr (ipairs state.azure-creator-prs)]
+          (when (= (?. pr :id) pr-id)
+            (tset pr :ci-status ci-status)))
+        (each [_ pr (ipairs state.azure-reviewer-prs)]
+          (when (= (?. pr :id) pr-id)
+            (tset pr :ci-status ci-status)))
         (update-menu)))))
 
 (fn fetch-policy-status [pr-id]
@@ -382,7 +357,8 @@
                   "title: title,"
                   "id: pullRequestId,"
                   "repository: repository.name,"
-                  "mergeStatus: mergeStatus"
+                  "mergeStatus: mergeStatus,"
+                  "reviewerVotes: reviewers[].vote"
                   "}")
         args [:repos :pr :list
               :--organization obj.organizationUrl
@@ -401,7 +377,8 @@
                   "title: title,"
                   "id: pullRequestId,"
                   "repository: repository.name,"
-                  "mergeStatus: mergeStatus"
+                  "mergeStatus: mergeStatus,"
+                  "reviewerVotes: reviewers[].vote"
                   "}")
         args [:repos :pr :list
               :--organization obj.organizationUrl
@@ -476,7 +453,6 @@
   (set state.github-involved-prs [])
   (set state.azure-creator-prs [])
   (set state.azure-reviewer-prs [])
-  (set state.azure-ci-status {})
   (set state.token nil)
   (set state.last-update nil)
   self)
