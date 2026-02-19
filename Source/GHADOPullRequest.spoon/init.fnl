@@ -95,20 +95,22 @@
 
 (fn get-icons [pr]
   "Get status icons for a PR"
-  (let [ci-icon (if (?. pr :draft?) ""
-                    (case (?. pr :ci-status)
+  (if (?. pr :draft?) ""
+      (let [ci-icon (case (?. pr :ci-status)
                       :success "✅ "
                       :failure "❌ "
                       :running "⏳ "
-                      _ ""))
-        conflict-icon (if (?. pr :has-conflicts?) "⚔️ " "")]
-    (.. ci-icon conflict-icon)))
+                      _ "")
+            review-icon (case (?. pr :review-status)
+                          :approved "👍 "
+                          :rejected "👎 "
+                          _ "")
+            conflict-icon (if (?. pr :has-conflicts?) "⚔️ " "")]
+        (.. ci-icon review-icon conflict-icon))))
 
 (fn get-style [pr]
   "Get text style for a PR"
   (if (?. pr :draft?) {:color {:red 0.5 :green 0.5 :blue 0.5 :alpha 1.0}}
-      (= (?. pr :review-status) :approved) {:color {:red 0 :green 0.6 :blue 0 :alpha 1.0}}
-      (= (?. pr :review-status) :rejected) {:color {:red 0.8 :green 0 :blue 0 :alpha 1.0}}
       {}))
 
 (fn get-title [pull-request]
